@@ -176,31 +176,28 @@ def get_history():
 
 # Body
 if file is not None:
-    if not is_valid_openai_key(st.session_state["openai_api_key"]):
-        st.error("Enter valid OpenAI API key to get started", icon="❌")
-    else:
-        retriever = embed_file(file)
-        send_message(
-            "Ready to go! Feel free to ask me anything about your file!",
-            "ai",
-            save=False,
-        )
-        paint_history()
-        message = st.chat_input("Ask anything about your file...")
-        if message:
-            send_message(message, "human")
+    retriever = embed_file(file)
+    send_message(
+        "Ready to go! Feel free to ask me anything about your file!",
+        "ai",
+        save=False,
+    )
+    paint_history()
+    message = st.chat_input("Ask anything about your file...")
+    if message:
+        send_message(message, "human")
 
-            with st.chat_message("ai"):
-                result = chain.invoke(
-                    {
-                        "context": retriever.invoke(message),
-                        "history": get_history(),
-                        "question": message,
-                    }
-                )
-                st.session_state["memory"].save_context(
-                    {"input": message},
-                    {"output": result.content},
-                )
+        with st.chat_message("ai"):
+            result = chain.invoke(
+                {
+                    "context": retriever.invoke(message),
+                    "history": get_history(),
+                    "question": message,
+                }
+            )
+            st.session_state["memory"].save_context(
+                {"input": message},
+                {"output": result.content},
+            )
 else:
     st.warning("Upload your file from sidebar!", icon="🔥")
